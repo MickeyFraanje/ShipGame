@@ -1,0 +1,36 @@
+Create 1-2 page document, concisely describe how to improve the game by:
+- the game dynamically adjusts the difficulty level to the user --> during actual game-play
+- measuring or estimating things like --> user skill, user risk taking, tasks user's good/bad at
+- having the game that adapts intelligently to the above measurements
+- two people responsible for the measuring part of the code
+- two people will be responsible for the game adaptation part of the code
+- list who's done what in the document
+- Friday, May 18 --> 1:1 feedback session
+- Friday, June 8 --> Deadline, submit game
+
+
+WHAT TO DO:
+- Remove the feature that it gets harder
+- Measure RAW DATA (see below)
+- Measure of user skill = Ratio of laser's shot to asteroids hit --> higher the ratio the better the user skill
+-implement new task of collecting coins for points
+
+overall goal: surviving and shooting
+
+Powerups (color coins?) in case user skill is low
+
+If user skill is very high --> takes two shots to break an asteroid (these asteroids become blue FOR SURE)
+
+RAW DATA:
+- hits
+- how many shots
+- average speed 
+- 
+
+--> ratio of shots fired to asteroids hit 
+
+Overall User Skill Level = ratio & average speed 
+
+CHECKPOINTS
+- Distance travelled (measured in time = 30 seconds) --> checkpoint
+-score is saved at checkpoint 
