@@ -16,13 +16,13 @@
  Shoot = Enter
  */
 
-import processing.sound.*;
-SoundFile pew1; //Shooting sound for ship 1.
-SoundFile pew2; //Shooting sound for ship 2.
-SoundFile meteor; //The sound for when a meteor is hit.
-SoundFile shipHit; //Sound for when a ship is hit.
-SoundFile nextLevel; //Sound effect that plays when you have reached the next level.
-SoundFile BGM; //Background music.
+/*import processing.sound.*;
+ SoundFile pew1; //Shooting sound for ship 1.
+ SoundFile pew2; //Shooting sound for ship 2.
+ SoundFile meteor; //The sound for when a meteor is hit.
+ SoundFile shipHit; //Sound for when a ship is hit.
+ SoundFile nextLevel; //Sound effect that plays when you have reached the next level.
+ SoundFile BGM; //Background music.*/
 
 PFont arcade; //The font used.
 
@@ -34,9 +34,14 @@ Bullet[] bullets2; //Green ship's bullets.
 int greenScore = 0; //Green ship's score.
 int[] highScore = new int[10]; //Array that records the highscores.
 
+int spaceBarPressed1 = 0; 
+
+spaceNugget nuggets[] = new spaceNugget[1000];
 Enemy enemies[]; //Array of basic enemies;
 int enemyTotal = 0; //Total number of enemies;
+int nuggetTotal = 0; //Total number of spaceNuggets;
 int enemyTimer; //Times when to make a new enemy;
+int nuggetTimer; //Times when to make a new nugget;
 Star[] stars; //Array for background stars.
 int starTotal = 0; //Total number of stars counted.
 int starTimer; //Times when to make a new star.
@@ -72,19 +77,20 @@ void setup() {
   loadHighScore(); //Loads the highscore into the game.
 
   //All the sound files used in the game (all sounds made by me).
-  pew1 = new SoundFile(this, "pew1.mp3"); //Shooting sound for player 1.
-  pew2 = new SoundFile(this, "pew2.mp3"); //Shooting sound for player 2.
-  meteor = new SoundFile(this, "meteor.mp3"); //Sound for when a meteor it hit.
-  shipHit = new SoundFile(this, "ShipHit.mp3"); //Sound that plays when a ship is hit.
-  nextLevel = new SoundFile(this, "Beepep.mp3"); //This sound plays when the timer is full and the next level starts.
-  BGM = new SoundFile(this, "ShipGameBGM.mp3"); //Background music for the game.
-  BGM.loop(); //Starts the background music for the gameplay and loops it.
+  /*pew1 = new SoundFile(this, "pew1.mp3"); //Shooting sound for player 1.
+   pew2 = new SoundFile(this, "pew2.mp3"); //Shooting sound for player 2.
+   meteor = new SoundFile(this, "meteor.mp3"); //Sound for when a meteor it hit.
+   shipHit = new SoundFile(this, "ShipHit.mp3"); //Sound that plays when a ship is hit.
+   nextLevel = new SoundFile(this, "Beepep.mp3"); //This sound plays when the timer is full and the next level starts.
+   BGM = new SoundFile(this, "ShipGameBGM.mp3"); //Background music for the game.
+   BGM.loop(); //Starts the background music for the gameplay and loops it.*/
 }
 
 void draw() {
   background(#12001C);
   makeStars(); //Makes stars.
   mainMenu(); //Shows the main menu.
+  //println(spaceBarPressed1);
 }
 
 void mainMenu() {
@@ -131,7 +137,8 @@ void keyPressed() {
     bullets1[bullet1Total] = new Bullet(ship1.xpos+30, ship1.ypos, color(#FCA10D));
     bullet1Total++; //Adds it to the bullet total.
     reloadTimer1 = millis(); //Resets the reload time.
-    pew1.play(); //Plays the sound effect.
+    spaceBarPressed1++;
+    // pew1.play(); //Plays the sound effect.
     if (bullet1Total>bullets1.length) {
       bullet1Total = 0; //Resets the total.
     }
@@ -149,7 +156,7 @@ void keyPressed() {
     bullets2[bullet2Total] = new Bullet(ship2.xpos+30, ship2.ypos, color(#FF2C84));
     bullet2Total++;
     reloadTimer2 = millis(); //Resets the reload time
-    pew2.play(); //Plays the sound effect.
+    //pew2.play(); //Plays the sound effect.
     if (bullet2Total>bullets2.length) {
       bullet2Total = 0; //Resets the total.
     }
@@ -184,6 +191,8 @@ void gamePlay() {
   text("Level " + level, width - 100, 30);
   makeBullets(); //Makes bullets.
   makeEnemies(); //Makes enemies.
+  makeNuggets(); //Makes nuggets.
+  
   showLives(ship1, 21); //Shows the amount of lives the ship has left.
   secondPlayerInfo(); //Adds info for the second player if it is two player mode.
   bar.move(); 
@@ -256,6 +265,7 @@ void endGame() {
       gameStart = false;
       enemyTotal = 0; //Resets the enemies. 
       purpleScore = 0; //Resets score.
+      spaceBarPressed1 = 0;
     }
   }
 }
@@ -344,6 +354,21 @@ void makeBullets() {
   }
 }
 
+void makeNuggets() {
+  if (millis()-nuggetTimer>=random(300, 2000)) {
+    nuggets[nuggetTotal] = new spaceNugget(width+20, random(50, height-50));
+    nuggetTotal++;
+    nuggetTimer = millis();
+    if(nuggetTotal>=nuggets.length) {
+      nuggetTotal = 0;
+    }
+  }
+   for (int i = 0; i<nuggetTotal; i++) {
+    nuggets[i].move();
+    nuggets[i].display();
+    } 
+}
+
 void makeEnemies() {
   if (level > 0) { //Initial time before arrival.
     if (millis()-enemyTimer>=random(300, 2000)) { //Makes new enemies.
@@ -354,7 +379,7 @@ void makeEnemies() {
         enemyTotal = 0; //Starts over.
       }
     }
-  } 
+  }
   for (int i = 0; i<enemyTotal; i++) {
     enemies[i].move();
     enemies[i].display();
