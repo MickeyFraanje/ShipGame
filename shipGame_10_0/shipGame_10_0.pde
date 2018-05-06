@@ -23,23 +23,25 @@
  SoundFile shipHit; //Sound for when a ship is hit.
  SoundFile nextLevel; //Sound effect that plays when you have reached the next level.
  SoundFile BGM; //Background music.*/
+ 
+ 
+import java.util.Collections; //collections interface
+import java.util.Iterator;
 
 PFont arcade; //The font used.
 
 Ship ship1;  //Purple ship.
-Bullet[] bullets1; //Purple ship's bullets.
+ArrayList<Bullet> bullets1; //Purple ship's bullets.
 int purpleScore = 0; //Purple ship's score.
 Ship ship2;  //Green ship.
-Bullet[] bullets2; //Green ship's bullets.
+ArrayList<Bullet> bullets2; //Green ship's bullets.
 int greenScore = 0; //Green ship's score.
 int[] highScore = new int[10]; //Array that records the highscores.
 
 int spaceBarPressed1 = 0; 
 
-spaceNugget nuggets[] = new spaceNugget[1000];
-Enemy enemies[]; //Array of basic enemies;
-int enemyTotal = 0; //Total number of enemies;
-int nuggetTotal = 0; //Total number of spaceNuggets;
+ArrayList<SpaceNugget> nuggets; //Array of nuggets
+ArrayList<Enemy> enemies; //Array of basic enemies;
 int enemyTimer; //Times when to make a new enemy;
 int nuggetTimer; //Times when to make a new nugget;
 Star[] stars; //Array for background stars.
@@ -62,10 +64,11 @@ boolean highScoreMenu = false; //Checks if the game is in the high score menu.
 void setup() {
   size(1000, 600); //Window size of the game.
   ship1 = new Ship(color(#BD3CCE), color(#FCA10D), width-2*(width/3), height/2-30); //Purple ship.
-  bullets1 = new Bullet[1000]; //Array of bullets for the purple ship.
+  bullets1 = new ArrayList<Bullet>(); //Array of bullets for the purple ship.
   ship2 = new Ship(color(#2EFF75), color(#FF2C84), width-2*(width/3), height/2+30); //Green ship.
-  bullets2 = new Bullet[1000]; //Array of bullets for the green ship.
-  enemies = new Enemy[1000]; //Array of enemy meteors (though maybe they're technically asteroids).
+  bullets2 = new ArrayList<Bullet>(); //Array of bullets for the green ship.
+  enemies = new ArrayList<Enemy>(); //ArrayList of enemy meteors (though maybe they're technically asteroids).
+  nuggets = new ArrayList<SpaceNugget>(); //ArrayList for spacenuggets
   stars = new Star[1000]; //Array of stars for the background.
   bar = new Bar(); //Bar that indicates when the level increases.
   onePlayer = new Button(width/2, (height/2)-150, 350, 100, "One Player"); //Button to start the game in singleplayer mode.
@@ -134,14 +137,11 @@ void keyPressed() {
     ship1.direction("right");
   }  
   if (key == ' ' && millis()-reloadTimer1 >= 100) { //Creates a new bullet for the purple ship when pressed.
-    bullets1[bullet1Total] = new Bullet(ship1.xpos+30, ship1.ypos, color(#FCA10D));
-    bullet1Total++; //Adds it to the bullet total.
+    Bullet nBullet = new Bullet(ship1.xpos+30, ship1.ypos, color(#FCA10D));
+    bullets1.add(nBullet);
     reloadTimer1 = millis(); //Resets the reload time.
     spaceBarPressed1++;
     // pew1.play(); //Plays the sound effect.
-    if (bullet1Total>bullets1.length) {
-      bullet1Total = 0; //Resets the total.
-    }
   } 
   if (keyCode == UP) { //Green ship controls.
     ship2.direction("up");
@@ -153,13 +153,10 @@ void keyPressed() {
     ship2.direction("right");
   }
   if (keyCode == ENTER && millis() - reloadTimer2 >= 100) { //Creates new bullet for the green ship when pressed.
-    bullets2[bullet2Total] = new Bullet(ship2.xpos+30, ship2.ypos, color(#FF2C84));
-    bullet2Total++;
+    Bullet nBullet = new Bullet(ship2.xpos+30, ship2.ypos, color(#FF2C84));
+    bullets2.add(nBullet);
     reloadTimer2 = millis(); //Resets the reload time
     //pew2.play(); //Plays the sound effect.
-    if (bullet2Total>bullets2.length) {
-      bullet2Total = 0; //Resets the total.
-    }
   }
 }
 
@@ -255,7 +252,7 @@ void endGame() {
       updateHighScore();
       gameStart = false;
       secondPlayer = false;
-      enemyTotal = 0; //Resets the enemies.
+      enemies.clear(); //Resets the enemies.
       purpleScore = 0; //Resets score.
       greenScore = 0;
     }
@@ -263,7 +260,7 @@ void endGame() {
     if (ship1.alive == false) {
       updateHighScore();
       gameStart = false;
-      enemyTotal = 0; //Resets the enemies. 
+      enemies.clear(); //Resets the enemies. 
       purpleScore = 0; //Resets score.
       spaceBarPressed1 = 0;
     }
@@ -310,18 +307,26 @@ void showLives(Ship s, int y) { //Function to display the amount of lives a ship
 }
 
 void bulletHit() { //Function to check if a bullet hit an enemy.
-  for (int i=0; i<bullet1Total; i++) { //Detects if the purple ship has hit an enemy.
-    for (int j=0; j<enemyTotal; j++) {
-      if (bullets1[i].impact(enemies[j])) {
-        enemies[j].hit();
+  Iterator<Bullet> bulletIter1 = bullets1.iterator();
+  while (bulletIter1.hasNext()) { //Detects if the purple ship has hit an enemy.
+    Bullet b = bulletIter1.next();
+    Iterator<Enemy> enemyIter = enemies.iterator();
+    while (enemyIter.hasNext()) {
+      Enemy e = enemyIter.next();
+      if (b.impact(e)) {
+        e.hit();
         purpleScore++;
       }
     }
   }
-  for (int i=0; i<bullet2Total; i++) { //Detects if the green ship has hit an enemy.
-    for (int j=0; j<enemyTotal; j++) {
-      if (bullets2[i].impact(enemies[j])) {
-        enemies[j].hit();
+  Iterator<Bullet> bulletIter2 = bullets2.iterator();
+  while (bulletIter2.hasNext()) { //Detects if the green ship has hit an enemy.
+    Bullet b = bulletIter2.next();
+    Iterator<Enemy> enemyIter = enemies.iterator();
+    while (enemyIter.hasNext()) {
+      Enemy e = enemyIter.next();
+      if (b.impact(e)) {
+        e.hit();
         greenScore++;
       }
     }
@@ -344,50 +349,56 @@ void makeStars() {
 }
 
 void makeBullets() {
-  for (int i = 0; i<bullet1Total; i++) {
-    bullets1[i].move();
-    bullets1[i].display();
+  Iterator<Bullet> bulletIter1 = bullets1.iterator();
+  while (bulletIter1.hasNext()) {
+    Bullet b = bulletIter1.next();
+    b.move();
+    b.display();
   }
-  for (int i = 0; i<bullet2Total; i++) {
-    bullets2[i].move();
-    bullets2[i].display();
+  Iterator<Bullet> bulletIter2 = bullets2.iterator();
+  while (bulletIter2.hasNext()) {
+    Bullet b = bulletIter2.next();
+    b.move();
+    b.display();
   }
 }
 
 void makeNuggets() {
   if (millis()-nuggetTimer>=random(300, 2000)) {
-    nuggets[nuggetTotal] = new spaceNugget(width+20, random(50, height-50));
-    nuggetTotal++;
+    SpaceNugget newNugget = new SpaceNugget(width+20, random(50, height-50));
+    nuggets.add(newNugget);
     nuggetTimer = millis();
-    if(nuggetTotal>=nuggets.length) {
-      nuggetTotal = 0;
-    }
   }
-   for (int i = 0; i<nuggetTotal; i++) {
-    nuggets[i].move();
-    nuggets[i].display();
+  Iterator<SpaceNugget> nuggetIter = nuggets.iterator();
+  while (nuggetIter.hasNext()) {
+    SpaceNugget n = nuggetIter.next();
+    n.move();
+    n.display();
+    if(n.xpos < -50){
+      nuggetIter.remove();
+      }
     } 
 }
 
 void makeEnemies() {
-  if (level > 0) { //Initial time before arrival.
-    if (millis()-enemyTimer>=random(300, 2000)) { //Makes new enemies.
-      enemies[enemyTotal] = new Enemy(width+20, random(50, height-50));
-      enemyTotal++;
-      enemyTimer = millis();
-      if (enemyTotal>=enemies.length) {
-        enemyTotal = 0; //Starts over.
-      }
-    }
+  if (millis()-enemyTimer>=random(300, 2000)) { //Makes new enemies.
+    Enemy newEnemy = new Enemy(width+20, random(50, height-50));
+    enemies.add(newEnemy);
+    enemyTimer = millis();
   }
-  for (int i = 0; i<enemyTotal; i++) {
-    enemies[i].move();
-    enemies[i].display();
-    if (enemies[i].impact(ship1)) {
+  Iterator<Enemy> enemyIter = enemies.iterator();
+  while (enemyIter.hasNext()) {
+    Enemy e = enemyIter.next();
+    e.move();
+    e.display();
+    if (e.impact(ship1)) {
       ship1.hit();
     }
-    if (enemies[i].impact(ship2)) {
+    if (e.impact(ship2)) {
       ship2.hit();
+    }
+    if (e.xpos < -50){
+      enemyIter.remove();
     }
   }
 }
