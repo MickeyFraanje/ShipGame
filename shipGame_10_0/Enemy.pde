@@ -47,7 +47,7 @@ class Enemy {
     ellipse(xpos, ypos, 40, 40);
   }
   void hit() {
-    meteor.play(); //Plays a hit sound.
+   // meteor.play(); //Plays a hit sound.
     xpos = -100;
     xspeed = 0;
   }

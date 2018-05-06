@@ -15,7 +15,7 @@ class Bar {
     if (ship1.alive||ship2.alive) { //The level only progresses if anyone is still alive.
       xpos = xpos + progress/100; //Speed at which the bar progresses.
       if (xpos >= 500) {
-        nextLevel.play(); //Plays sound effect.
+      //  nextLevel.play(); //Plays sound effect.
         level++; //When the bar is full the game gets more difficult.
         xpos = 0;
       }

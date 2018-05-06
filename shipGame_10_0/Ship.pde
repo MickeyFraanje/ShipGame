@@ -112,7 +112,7 @@ class Ship {
     ypos = constrain(ypos, 50, height-50);
   }
   void hit(){
-    shipHit.play();
+  //  shipHit.play();
     int h = millis();
     if(millis() - h <= 100){
      xpos = xpos-1000;
